@@ -1,4 +1,453 @@
-# Conventional Commits Rule
+---
+description: Josh Dunigan's global coding standards and best practices for all projects
+globs: ["**/*.{js,jsx,ts,tsx,md,css,scss,html,py}"]
+---
+
+# Josh Dunigan's Coding Standards
+
+@context {
+    "type": "cursor_rules",
+    "purpose": "global_standards",
+    "format_version": "1.0.0",
+    "supported_languages": [
+        "javascript",
+        "typescript",
+        "python",
+        "markdown",
+        "html",
+        "css"
+    ]
+}
+
+@structure {
+    "required_sections": [
+        "code_organization",
+        "naming_conventions",
+        "documentation",
+        "git_practices"
+    ],
+    "recommended_sections": [
+        "testing",
+        "performance",
+        "security"
+    ]
+}
+
+## Code Organization Guidelines
+### File Structure
+
+@file_structure_rules [
+    {
+        "id": "modular_organization",
+        "rule": "Organize code into modular, single-purpose files",
+        "severity": "warning"
+    },
+    {
+        "id": "file_length",
+        "rule": "Keep files under 300 lines when possible",
+        "severity": "warning"
+    },
+    {
+        "id": "logical_grouping",
+        "rule": "Group related files in focused directories",
+        "severity": "suggestion"
+    },
+    {
+        "id": "consistent_imports",
+        "rule": "Use consistent import ordering: 1) framework/library imports, 2) external modules, 3) internal modules",
+        "severity": "warning"
+    }
+]
+
+### Component Structure
+
+@component_rules {
+    "react": {
+        "structure": "Begin with imports, then prop types/interfaces, constants, hooks/state, helper functions, effect hooks, render method",
+        "composition": "Prefer composition over inheritance",
+        "props": "Destructure props at the top level of the component function"
+    },
+    "general": {
+        "single_responsibility": "Each component should have a single responsibility",
+        "purity": "Functions should be pure when possible",
+        "side_effects": "Isolate side effects into clearly labeled sections"
+    }
+}
+
+## Naming Conventions
+
+@naming_rules {
+    "files": {
+        "react_components": "PascalCase.jsx/tsx",
+        "utilities": "camelCase.js/ts",
+        "constants": "UPPER_SNAKE_CASE.js/ts or camelCase.js/ts",
+        "tests": "ComponentName.test.js/ts"
+    },
+    "variables": {
+        "constants": "UPPER_SNAKE_CASE for true constants, camelCase for configuration values",
+        "variables": "camelCase",
+        "booleans": "Prefix with 'is', 'has', 'should', etc."
+    },
+    "functions": {
+        "general": "camelCase, verb + noun (e.g. getData, calculateTotal)",
+        "react_hooks": "Prefix with 'use'",
+        "event_handlers": "Prefix with 'handle' (e.g. handleClick)"
+    },
+    "classes": {
+        "class_names": "PascalCase, nouns",
+        "interfaces": "PascalCase, prefixed with 'I' or describing the contract"
+    },
+    "css": {
+        "classes": "kebab-case or BEM notation",
+        "ids": "camelCase"
+    }
+}
+
+## Documentation Standards
+
+@documentation_rules {
+    "general": {
+        "clarity": "Write documentation with the audience in mind",
+        "examples": "Include practical examples for complex functionality",
+        "diagrams": "Use diagrams for architecture and data flow"
+    },
+    "code_comments": {
+        "purpose": "Explain 'why' not 'what'",
+        "format": "Use JSDoc/TSDoc for JavaScript/TypeScript",
+        "todos": "Include the issue tracker ID in TODOs"
+    },
+    "readme": {
+        "sections": [
+            "Project overview",
+            "Installation",
+            "Quick start",
+            "Configuration",
+            "API reference",
+            "Contributing"
+        ]
+    },
+    "typescript": {
+        "interfaces": "Document all interfaces and types",
+        "generics": "Explain generic type parameters",
+        "return_values": "Document return types and side effects"
+    }
+}
+
+## Git Practices
+
+@git_rules {
+    "branches": {
+        "naming": "Use feature/, bugfix/, refactor/, docs/ prefixes",
+        "lifetime": "Delete branches after merging"
+    },
+    "commits": {
+        "messages": "Use conventional commits format: <type>(<scope>): <description>",
+        "scope": "Indicate affected module/component",
+        "atomicity": "Make small, focused commits"
+    },
+    "pull_requests": {
+        "title": "Follow the same convention as commit messages",
+        "description": "Include context, changes, and testing steps",
+        "size": "Keep PRs under 400 lines of code when possible"
+    },
+    "workflow": {
+        "rebase": "Prefer rebase over merge for integrating upstream changes",
+        "squash": "Squash commits before merging to main"
+    }
+}
+
+## JavaScript/TypeScript Guidelines
+### TypeScript Usage
+
+@typescript_rules [
+    {
+        "id": "strict_typing",
+        "rule": "Use strict typing - no 'any' type except in tests or third-party integrations",
+        "severity": "error"
+    },
+    {
+        "id": "discriminated_unions",
+        "rule": "Use discriminated unions for complex state management",
+        "severity": "suggestion"
+    },
+    {
+        "id": "prefer_interfaces",
+        "rule": "Use interfaces for object shapes that will be extended or implemented",
+        "severity": "warning"
+    },
+    {
+        "id": "prefer_types",
+        "rule": "Use type aliases for function signatures, primitives, unions, and mapped types",
+        "severity": "warning"
+    },
+    {
+        "id": "type_exports",
+        "rule": "Centralize and re-export types from a types.ts file",
+        "severity": "suggestion"
+    }
+]
+
+### Modern JavaScript
+
+@javascript_rules {
+    "prefer": [
+        "Arrow functions for callbacks and anonymous functions",
+        "Async/await over promises chaining",
+        "Object/array destructuring",
+        "Nullish coalescing (??) and optional chaining (?.)",
+        "Template literals over string concatenation"
+    ],
+    "avoid": [
+        "var - use const by default, let when necessary",
+        "Function expressions where arrow functions are clearer",
+        "this binding when not necessary"
+    ]
+}
+
+## React Best Practices
+
+@react_rules {
+    "hooks": {
+        "dependencies": "Always specify exhaustive dependencies array",
+        "extraction": "Extract complex logic into custom hooks",
+        "order": "Use consistent hook ordering: useState, useReducer, useContext, then others"
+    },
+    "performance": {
+        "memoization": "Use React.memo, useMemo, and useCallback judiciously",
+        "rendering": "Avoid expensive operations in render",
+        "lists": "Always use stable keys for list items"
+    },
+    "state": {
+        "local_vs_global": "Keep state as local as possible",
+        "derived_state": "Calculate derived state during render",
+        "immutability": "Always update state immutably"
+    }
+}
+
+## Testing Guidelines
+
+@testing_rules {
+    "unit_tests": {
+        "scope": "Test functionality, not implementation",
+        "isolation": "Mock dependencies for true unit testing",
+        "naming": "describe('Component/Function'), it('should behavior')"
+    },
+    "coverage": {
+        "minimum": "Aim for at least 80% code coverage",
+        "critical": "100% coverage for critical business logic"
+    },
+    "patterns": {
+        "arrange_act_assert": "Structure tests with AAA pattern",
+        "data_providers": "Use parameterized tests for multiple test cases"
+    }
+}
+
+## Performance Optimization
+
+@performance_rules [
+    {
+        "id": "image_optimization",
+        "rule": "Optimize images for production",
+        "severity": "warning"
+    },
+    {
+        "id": "lazy_loading",
+        "rule": "Implement lazy loading for non-critical components",
+        "severity": "suggestion"
+    },
+    {
+        "id": "code_splitting",
+        "rule": "Use code splitting for large applications",
+        "severity": "suggestion"
+    },
+    {
+        "id": "render_optimization",
+        "rule": "Avoid unnecessary re-renders by optimizing component structure",
+        "severity": "warning"
+    }
+]
+
+## Security Practices
+
+@security_rules {
+    "input_validation": "Always validate user input on both client and server",
+    "authentication": "Follow OAuth 2.0 best practices for authentication",
+    "csrf_protection": "Implement CSRF protection on forms",
+    "content_security": "Set up proper Content Security Policy headers",
+    "dependencies": "Regularly update and audit dependencies"
+}
+
+## Docker Guidelines
+
+@docker_rules {
+    "images": {
+        "base": "Use specific version tags for base images",
+        "multi_stage": "Implement multi-stage builds for production images",
+        "minimal": "Keep images minimal - only include what's necessary"
+    },
+    "dockerfiles": {
+        "order": "Order instructions to maximize layer caching",
+        "cmd_vs_entrypoint": "Use ENTRYPOINT for executables, CMD for default arguments",
+        "user": "Run containers as non-root users"
+    },
+    "compose": {
+        "env_files": "Use .env files for environment variables",
+        "networks": "Define custom networks for service isolation",
+        "volumes": "Use named volumes for persistence"
+    }
+}
+
+## Accessibility Standards
+
+@accessibility_rules [
+    {
+        "id": "semantic_html",
+        "rule": "Use semantic HTML elements",
+        "severity": "warning"
+    },
+    {
+        "id": "aria_attributes",
+        "rule": "Use ARIA attributes when semantic HTML is insufficient",
+        "severity": "warning"
+    },
+    {
+        "id": "keyboard_navigation",
+        "rule": "Ensure all interactive elements are keyboard accessible",
+        "severity": "error"
+    },
+    {
+        "id": "focus_management",
+        "rule": "Implement proper focus management for modals and dynamic content",
+        "severity": "warning"
+    },
+    {
+        "id": "color_contrast",
+        "rule": "Maintain WCAG 2.1 AA compliant color contrast",
+        "severity": "warning"
+    }
+]
+
+## Examples
+
+@examples {
+    "component_structure": {
+        "description": "React component with proper structure",
+        "code": `
+// UserProfile.tsx
+import React, { useState, useEffect } from 'react';
+import { Avatar } from '@/components/common';
+import { fetchUserData } from '@/api/users';
+import { formatDate } from '@/utils/date';
+
+// Types
+interface UserProfileProps {
+  userId: string;
+  showActivity?: boolean;
+}
+
+// Component
+const UserProfile: React.FC<UserProfileProps> = ({ userId, showActivity = false }) => {
+  // State
+  const [userData, setUserData] = useState<UserData | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Helper functions
+  const formatUserActivity = (activity: Activity[]) => {
+    return activity
+      .filter(item => item.visible)
+      .map(item => ({
+        ...item,
+        date: formatDate(item.timestamp)
+      }));
+  };
+
+  // Effects
+  useEffect(() => {
+    const loadUserData = async () => {
+      try {
+        setIsLoading(true);
+        const data = await fetchUserData(userId);
+        setUserData(data);
+      } catch (err) {
+        setError('Failed to load user data');
+        console.error(err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadUserData();
+  }, [userId]);
+
+  // Render methods
+  if (isLoading) return <div className="loading-spinner" />;
+  if (error) return <div className="error-message">{error}</div>;
+  if (!userData) return null;
+
+  return (
+    <div className="user-profile">
+      <Avatar src={userData.avatarUrl} size="large" />
+      <h2>{userData.name}</h2>
+      <p>{userData.bio}</p>
+
+      {showActivity && (
+        <div className="user-activity">
+          <h3>Recent Activity</h3>
+          {formatUserActivity(userData.activity).map(item => (
+            <div key={item.id} className="activity-item">
+              {item.description} - {item.date}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default UserProfile;
+        `
+    },
+    "commit_messages": {
+        "good": [
+            "feat(auth): add OAuth2 login flow",
+            "fix(payments): resolve double-charging issue",
+            "docs(readme): update installation steps",
+            "refactor(api): simplify user validation logic",
+            "perf(images): optimize image loading on homepage"
+        ],
+        "bad": [
+            "fixed stuff",
+            "WIP",
+            "Updates",
+            "New feature",
+            "Fixed the thing John mentioned yesterday"
+        ]
+    }
+}
+
+## Best Practices
+
+@best_practices {
+    "code_reviews": {
+        "focus": "Look for correctness, maintainability, and performance",
+        "attitude": "Be constructive and specific",
+        "scope": "Review in small batches for higher quality feedback"
+    },
+    "documentation": {
+        "frequency": "Document as you code, not after",
+        "audience": "Write for future developers (including yourself)",
+        "updates": "Update documentation when changing code"
+    },
+    "coding": {
+        "simplicity": "Prefer simple, readable solutions over clever ones",
+        "consistency": "Follow established patterns within the project",
+        "technical_debt": "Address technical debt regularly"
+    }
+}
+
+@version "1.0.0"
+@last_updated "2024-03-09"
 
 <rule>
 name: conventional_commits
@@ -41,8 +490,6 @@ metadata:
   priority: high
   version: 1.0
 </rule>
-
-# Code Documentation Rule
 
 <rule>
 name: code_documentation
@@ -94,8 +541,6 @@ metadata:
   version: 1.0
 </rule>
 
-# Error Handling Rule
-
 <rule>
 name: error_handling
 description: Ensure proper error handling in code
@@ -146,8 +591,6 @@ metadata:
   version: 1.0
 </rule>
 
-# Testing Reminder Rule
-
 <rule>
 name: testing_reminder
 description: Remind to write tests for new code
@@ -184,175 +627,6 @@ metadata:
   priority: medium
   version: 1.0
 </rule>
-
-# Code Quality Standards Rule
-
-<rule>
-name: code_quality_standards
-description: Enforce code quality standards and best practices
-filters:
-  - type: file_extension
-    pattern: "\.(js|ts|py|java|c|cpp|go|rb)$"
-  - type: event
-    pattern: "file_save"
-
-actions:
-  - type: suggest
-    message: |
-      Code quality checklist:
-
-      1. Follow consistent naming conventions
-      2. Keep functions small and focused (single responsibility)
-      3. Limit function arguments (≤3 when possible)
-      4. Avoid deep nesting (≤3 levels)
-      5. Add comments for complex logic
-      6. Remove commented-out code
-      7. Avoid magic numbers (use named constants)
-      8. Check for potential null/undefined values
-      9. Consider performance implications
-      10. Follow language-specific style guides
-
-  - type: reject
-    conditions:
-      - pattern: "function [A-Za-z0-9_]+\\([^\\)]{100,}\\)"
-        message: "Too many function parameters - consider refactoring or using an options object"
-      - pattern: "\\{[^\\{\\}]*\\{[^\\{\\}]*\\{[^\\{\\}]*\\{[^\\{\\}]*\\{[^\\{\\}]*\\}[^\\{\\}]*\\}[^\\{\\}]*\\}[^\\{\\}]*\\}[^\\{\\}]*\\}"
-        message: "Too many nested blocks - consider refactoring for readability"
-
-examples:
-  - input: |
-      function processData(data) {
-        if (data) {
-          if (data.users) {
-            if (data.users.length > 0) {
-              if (data.users[0].active) {
-                // Process active users
-              }
-            }
-          }
-        }
-      }
-    output: |
-      function processData(data) {
-        if (!data?.users?.length) return;
-
-        const activeUsers = data.users.filter(user => user.active);
-        if (activeUsers.length) {
-          // Process active users
-        }
-      }
-
-metadata:
-  priority: high
-  version: 1.0
-</rule>
-
-# GitHub Repository Best Practices
-
-<rule>
-name: github_repo_standards
-description: Enforce GitHub repository best practices
-filters:
-  - type: file_name
-    pattern: "^(README\\.md|CONTRIBUTING\\.md|LICENSE|CODE_OF_CONDUCT\\.md)$"
-  - type: directory
-    pattern: "^\\."
-  - type: event
-    pattern: "repository_create"
-
-actions:
-  - type: suggest
-    message: |
-      GitHub repository essentials:
-
-      1. README.md should include:
-         - Project description and purpose
-         - Installation instructions
-         - Usage examples
-         - Contributing guidelines link
-
-      2. Essential repository files:
-         - CONTRIBUTING.md
-         - LICENSE
-         - CODE_OF_CONDUCT.md
-
-      3. Consider adding:
-         - .github/ISSUE_TEMPLATE/
-         - .github/PULL_REQUEST_TEMPLATE.md
-         - .github/workflows/ (for GitHub Actions)
-
-examples:
-  - input: "Creating a new repository"
-    output: "Don't forget to add a README.md with installation and usage instructions, and consider setting up issue/PR templates."
-
-metadata:
-  priority: medium
-  version: 1.0
-</rule>
-
-# Git Ignore Rule
-
-<rule>
-name: gitignore_standards
-description: Ensure proper .gitignore configuration
-filters:
-  - type: file_name
-    pattern: "^\\.gitignore$"
-  - type: event
-    pattern: "repository_create"
-
-actions:
-  - type: suggest
-    message: |
-      Remember to include appropriate entries in .gitignore:
-
-      1. Language-specific build artifacts and dependencies
-         - node_modules/, venv/, target/, etc.
-      2. Editor and IDE files
-         - .vscode/, .idea/, *.swp, etc.
-      3. Operating system files
-         - .DS_Store, Thumbs.db, etc.
-      4. Build outputs and logs
-         - dist/, build/, logs/, *.log
-      5. Sensitive information
-         - .env, credentials.json, etc.
-
-      Consider using gitignore.io to generate a comprehensive .gitignore for your tech stack.
-
-examples:
-  - input: "Setting up a new Node.js project"
-    output: |
-      Make sure your .gitignore includes:
-
-      # Dependencies
-      node_modules/
-
-      # Build outputs
-      dist/
-      build/
-
-      # Environment variables
-      .env
-      *.env.local
-
-      # Logs
-      logs/
-      *.log
-
-      # Editor settings
-      .vscode/
-      .idea/
-
-      # OS files
-      .DS_Store
-      Thumbs.db
-
-metadata:
-  priority: medium
-  version: 1.0
-</rule>
-
-# Dockerfile Best Practices Rule
 
 <rule>
 name: dockerfile_best_practices
@@ -433,421 +707,60 @@ metadata:
   version: 1.0
 </rule>
 
-# Docker Security Rule
-
 <rule>
-name: docker_security_practices
-description: Enforce security best practices for Docker containers
+name: gitignore_standards
+description: Ensure proper .gitignore configuration
 filters:
   - type: file_name
-    pattern: "^Dockerfile$|^Dockerfile\\.[a-zA-Z0-9_-]+$|docker-compose\\.ya?ml$"
-  - type: content
-    pattern: "FROM|RUN|USER|COPY|VOLUME"
+    pattern: "^\\.gitignore$"
+  - type: event
+    pattern: "repository_create"
 
 actions:
   - type: suggest
     message: |
-      Docker security best practices:
+      Remember to include appropriate entries in .gitignore:
 
-      1. Use official or verified images as base
-      2. Regularly scan images for vulnerabilities (using tools like Trivy, Clair)
-      3. Use non-root users when possible
-      4. Use specific versions of base images
-      5. Remove unnecessary tools and packages
-      6. Don't store secrets in Docker images
-      7. Use read-only file systems where possible
-      8. Use Docker Content Trust for signed images
-      9. Limit container capabilities and resources
-      10. Keep base images updated for security patches
+      1. Language-specific build artifacts and dependencies
+         - node_modules/, venv/, target/, etc.
+      2. Editor and IDE files
+         - .vscode/, .idea/, *.swp, etc.
+      3. Operating system files
+         - .DS_Store, Thumbs.db, etc.
+      4. Build outputs and logs
+         - dist/, build/, logs/, *.log
+      5. Sensitive information
+         - .env, credentials.json, etc.
 
-      Example of proper security configuration:
-      ```dockerfile
-      FROM alpine:3.16
-
-      # Install dependencies
-      RUN apk add --no-cache application-package
-
-      # Create non-root user and group
-      RUN addgroup -S appgroup && adduser -S appuser -G appgroup
-
-      # Set proper permissions
-      COPY --chown=appuser:appgroup . /app
-
-      # Use non-root user
-      USER appuser
-
-      # Make filesystem read-only where possible
-      VOLUME ["/app/data"]
-
-      # Limit capabilities
-      # (implement at runtime with docker run --cap-drop=ALL --cap-add=specific_capability)
-
-      CMD ["./app/start.sh"]
-      ```
-
-  - type: reject
-    conditions:
-      - pattern: "FROM (?!alpine|debian|ubuntu|centos|fedora)[^:]+(?!.*slim)"
-        message: "Consider using a minimal base image like alpine or slim variants"
-      - pattern: "(?<!USER) (root|0)"
-        message: "Avoid running containers as root - create and use non-root users"
-      - pattern: "(ENV|ARG) .*PASSWORD|.*SECRET|.*KEY"
-        message: "Don't store secrets in Docker images - use environment variables at runtime or secrets management"
+      Consider using gitignore.io to generate a comprehensive .gitignore for your tech stack.
 
 examples:
-  - input: |
-      FROM alpine:latest
-      RUN apk add --no-cache python3
-      ENV DB_PASSWORD=secretpassword
-      COPY ./app /app
-      CMD ["python3", "/app/main.py"]
+  - input: "Setting up a new Node.js project"
     output: |
-      FROM alpine:3.16
-      RUN apk add --no-cache python3
-      # Create non-root user
-      RUN addgroup -S appgroup && adduser -S appuser -G appgroup
-      # Use ENV at runtime, not build time
-      # ENV DB_PASSWORD=secretpassword
-      COPY --chown=appuser:appgroup ./app /app
-      USER appuser
-      CMD ["python3", "/app/main.py"]
+      Make sure your .gitignore includes:
 
-metadata:
-  priority: high
-  version: 1.0
-</rule>
+      # Dependencies
+      node_modules/
 
-# Docker Compose Best Practices Rule
+      # Build outputs
+      dist/
+      build/
 
-<rule>
-name: docker_compose_best_practices
-description: Enforce best practices for Docker Compose files
-filters:
-  - type: file_name
-    pattern: "docker-compose\\.ya?ml$"
-  - type: content
-    pattern: "version:|services:"
+      # Environment variables
+      .env
+      *.env.local
 
-actions:
-  - type: suggest
-    message: |
-      Docker Compose best practices:
+      # Logs
+      logs/
+      *.log
 
-      1. Use version 3+ of the compose specification
-      2. Define service dependencies properly
-      3. Use environment files for configuration
-      4. Name volumes explicitly for persistence
-      5. Configure healthchecks for services
-      6. Set resource limits for services
-      7. Use networks for isolation between service groups
-      8. Add labels for better organization
-      9. Use profiles for different deployment scenarios
-      10. Implement proper restart policies
+      # Editor settings
+      .vscode/
+      .idea/
 
-      Example of good Docker Compose structure:
-      ```yaml
-      version: '3.9'
-
-      services:
-        webapp:
-          image: webapp:1.0
-          build:
-            context: ./webapp
-            dockerfile: Dockerfile
-          depends_on:
-            db:
-              condition: service_healthy
-          ports:
-            - "8080:8080"
-          environment:
-            - NODE_ENV=production
-          env_file:
-            - ./.env
-          deploy:
-            resources:
-              limits:
-                cpus: '0.5'
-                memory: 512M
-          restart: unless-stopped
-          healthcheck:
-            test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
-            interval: 30s
-            timeout: 10s
-            retries: 3
-          networks:
-            - frontend
-            - backend
-
-        db:
-          image: postgres:14-alpine
-          volumes:
-            - db_data:/var/lib/postgresql/data
-          env_file:
-            - ./.env
-          networks:
-            - backend
-          healthcheck:
-            test: ["CMD", "pg_isready", "-U", "postgres"]
-            interval: 10s
-            timeout: 5s
-            retries: 5
-
-      volumes:
-        db_data:
-          name: my_project_db_data
-
-      networks:
-        frontend:
-        backend:
-      ```
-
-  - type: reject
-    conditions:
-      - pattern: "version: ['\"]?2['\"]?"
-        message: "Use Docker Compose version 3+ for better compatibility with Docker Swarm and Kubernetes"
-      - pattern: "build: \\."
-        message: "Specify build context and Dockerfile explicitly for better clarity"
-
-examples:
-  - input: |
-      version: '2'
-      services:
-        web:
-          build: .
-          ports:
-            - "5000:5000"
-        redis:
-          image: redis
-    output: |
-      version: '3.9'
-      services:
-        web:
-          build:
-            context: .
-            dockerfile: Dockerfile
-          ports:
-            - "5000:5000"
-          depends_on:
-            redis:
-              condition: service_started
-          restart: unless-stopped
-          healthcheck:
-            test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
-            interval: 30s
-            timeout: 10s
-            retries: 3
-        redis:
-          image: redis:7-alpine
-          volumes:
-            - redis_data:/data
-          healthcheck:
-            test: ["CMD", "redis-cli", "ping"]
-            interval: 10s
-            timeout: 5s
-            retries: 5
-
-      volumes:
-        redis_data:
-
-metadata:
-  priority: medium
-  version: 1.0
-</rule>
-
-# Docker Image Optimization Rule
-
-<rule>
-name: docker_image_optimization
-description: Guide optimization of Docker images for production use
-filters:
-  - type: file_name
-    pattern: "^Dockerfile$|^Dockerfile\\.[a-zA-Z0-9_-]+$"
-  - type: content
-    pattern: "FROM|RUN|COPY|ADD"
-
-actions:
-  - type: suggest
-    message: |
-      Docker image optimization best practices:
-
-      1. Use multi-stage builds to reduce final image size
-      2. Select appropriate base images (Alpine or slim variants)
-      3. Minimize layer count by combining related commands
-      4. Clean up after package installations and builds
-      5. Use .dockerignore to exclude unnecessary files
-      6. Order layers from least to most frequently changing
-      7. Use specific versions for reproducibility
-      8. Only install necessary packages and dependencies
-      9. Consider distroless images for production
-      10. Remove build tools in final image
-
-      Example of optimized Dockerfile:
-      ```dockerfile
-      # Build stage
-      FROM node:16-alpine AS build
-      WORKDIR /app
-
-      # Install dependencies first (better layer caching)
-      COPY package*.json ./
-      RUN npm ci
-
-      # Then copy source code
-      COPY . .
-
-      # Build the application
-      RUN npm run build
-
-      # Production stage
-      FROM node:16-alpine
-      WORKDIR /app
-
-      # Copy only what's needed from build stage
-      COPY --from=build /app/dist ./dist
-      COPY --from=build /app/package*.json ./
-
-      # Install only production dependencies
-      RUN npm ci --only=production && \
-          npm cache clean --force
-
-      # Use non-root user
-      USER node
-
-      # Start the application
-      CMD ["node", "dist/index.js"]
-      ```
-
-  - type: reject
-    conditions:
-      - pattern: "RUN (npm|pip|apt-get|apk) (?!.*--no-cache|.*clean)"
-        message: "Clean cache after package installation to reduce image size"
-      - pattern: "RUN (npm|yarn) install (?!.*--production|.*--only=production)"
-        message: "Use production flag to avoid installing dev dependencies in final image"
-
-examples:
-  - input: |
-      FROM node:latest
-      WORKDIR /app
-      COPY . .
-      RUN npm install
-      CMD ["npm", "start"]
-    output: |
-      FROM node:16-alpine AS build
-      WORKDIR /app
-      COPY package*.json ./
-      RUN npm ci
-      COPY . .
-      RUN npm run build
-
-      FROM node:16-alpine
-      WORKDIR /app
-      COPY --from=build /app/dist ./dist
-      COPY --from=build /app/package*.json ./
-      RUN npm ci --only=production && npm cache clean --force
-      USER node
-      CMD ["node", "dist/index.js"]
-
-metadata:
-  priority: medium
-  version: 1.0
-</rule>
-
-# Docker Networking and Volumes Rule
-
-<rule>
-name: docker_networking_volumes
-description: Guide proper use of Docker networking and volume management
-filters:
-  - type: file_name
-    pattern: "docker-compose\\.ya?ml$|^Dockerfile$"
-  - type: content
-    pattern: "volumes:|networks:|VOLUME|ports:"
-
-actions:
-  - type: suggest
-    message: |
-      Docker networking and volumes best practices:
-
-      1. Name volumes explicitly rather than using anonymous volumes
-      2. Use bind mounts for development, named volumes for production
-      3. Create separate networks for isolation between service groups
-      4. Expose only necessary ports
-      5. Use internal networks for service-to-service communication
-      6. Implement proper network aliases
-      7. Consider read-only volumes when possible
-      8. Use volume drivers for specific requirements
-      9. Set up proper network policies
-      10. Backup important volumes
-
-      Example of good volume and network configuration:
-      ```yaml
-      # Docker Compose example
-      services:
-        webapp:
-          # ... other config
-          volumes:
-            - ./src:/app/src:ro  # Read-only bind mount for code
-            - app_node_modules:/app/node_modules  # Named volume for dependencies
-          ports:
-            - "8080:8080"  # Only expose what's necessary
-          networks:
-            frontend:
-              aliases:
-                - webapp.local
-            backend: {}
-
-        db:
-          # ... other config
-          volumes:
-            - db_data:/var/lib/postgresql/data
-          networks:
-            backend: {}
-          # No ports exposed to host - only accessible via internal network
-
-      volumes:
-        app_node_modules:
-        db_data:
-          driver: local
-          driver_opts:
-            type: 'none'
-            o: 'bind'
-            device: '/path/on/host/db-data'
-
-      networks:
-        frontend:
-        backend:
-          internal: true  # Not exposed to outside world
-      ```
-
-  - type: reject
-    conditions:
-      - pattern: "volumes:\\s+- /[^:]+:/"
-        message: "Use named volumes instead of anonymous volumes for better persistence and management"
-      - pattern: "ports:\\s+- \"[^:]+:22\""
-        message: "Exposing SSH port (22) is generally not recommended for containers"
-
-examples:
-  - input: |
-      services:
-        app:
-          build: .
-          volumes:
-            - /app/data
-          ports:
-            - "80:80"
-            - "22:22"
-    output: |
-      services:
-        app:
-          build: .
-          volumes:
-            - app_data:/app/data
-          ports:
-            - "80:80"
-          # Removed unnecessary SSH port
-
-      volumes:
-        app_data:
-          name: my_project_app_data
+      # OS files
+      .DS_Store
+      Thumbs.db
 
 metadata:
   priority: medium
