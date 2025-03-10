@@ -1,6 +1,7 @@
 ---
 description: Josh Dunigan's global coding standards and best practices for all projects
 globs: ["**/*.{js,jsx,ts,tsx,md,css,scss,html,py}"]
+alwaysApply: false
 ---
 
 # Josh Dunigan's Coding Standards
@@ -451,17 +452,19 @@ export default UserProfile;
 
 <rule>
 name: conventional_commits
-description: Guide commit messages to follow the conventional commits format
+description: Enforce conventional commits format for all commits, especially when pushing to GitHub
 filters:
   - type: event
     pattern: "commit_message_input"
   - type: intent
     pattern: "commit_changes"
+  - type: event
+    pattern: "git_push"
 
 actions:
-  - type: suggest
+  - type: enforce
     message: |
-      Format your commit message using conventional commits:
+      Your commit message must follow the conventional commits format:
 
       <type>(<scope>): <description>
 
@@ -477,8 +480,9 @@ actions:
 
       Examples:
       - feat(auth): add user authentication system
-      - fix(api): correct response status code
-      - docs(readme): update installation instructions
+      - fix(api): resolve null pointer in user data fetch
+      
+    validation_regex: "^(feat|fix|docs|style|refactor|perf|test|chore|build|ci|revert)(\([a-z0-9-]+\))?: .{1,100}$"
 
 examples:
   - input: "Added login function"
