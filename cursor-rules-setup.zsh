@@ -378,23 +378,18 @@ EOL
   # Create pre-commit hook to enforce conventional commits
   cat > "$hooks_dir/pre-commit" << 'EOL'
 #!/bin/zsh
+# Pre-commit checks can go here
+
+exit 0
+EOL
+
+  # Create commit-msg hook to enforce conventional commits format
+  cat > "$hooks_dir/commit-msg" << 'EOL'
+#!/bin/zsh
 # Enforce conventional commits format
 
-# Skip if in the middle of a merge, rebase, etc.
-if [[ -f "$(git rev-parse --git-dir)/MERGE_HEAD" ]] || \
-   [[ -f "$(git rev-parse --git-dir)/REBASE_HEAD" ]] || \
-   [[ -f "$(git rev-parse --git-dir)/CHERRY_PICK_HEAD" ]]; then
-  exit 0
-fi
-
-# Get the commit message from the template if it exists
-commit_msg_file="$(git rev-parse --git-dir)/COMMIT_EDITMSG"
-if [[ ! -f "$commit_msg_file" ]]; then
-  # No commit message file yet, this is fine
-  exit 0
-fi
-
-# Read the commit message
+# Get the commit message
+commit_msg_file="$1"
 commit_msg=$(cat "$commit_msg_file")
 
 # Skip if it's a merge commit
@@ -417,15 +412,15 @@ fi
 
 exit 0
 EOL
-  
-  # Make all hooks executable
-  chmod +x "$hooks_dir/post-checkout" "$hooks_dir/post-merge" "$hooks_dir/post-rewrite" "$hooks_dir/pre-commit"
+
+  # Make hooks executable
+  chmod +x "$hooks_dir/post-checkout" "$hooks_dir/post-merge" "$hooks_dir/post-rewrite" "$hooks_dir/pre-commit" "$hooks_dir/commit-msg"
   
   echo "✅ Git hooks installed in $target_dir:"
+  echo "  - commit-msg: Enforces conventional commit format"
   echo "  - post-checkout: Applies cursor rules after checkout"
   echo "  - post-merge: Applies cursor rules after merge/pull"
   echo "  - post-rewrite: Applies cursor rules after rebase/amend"
-  echo "  - pre-commit: Enforces conventional commit format"
   echo ""
   echo "Cursor rules will be applied automatically when needed."
 }
