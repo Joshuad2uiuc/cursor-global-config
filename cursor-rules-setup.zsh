@@ -338,10 +338,11 @@ EOL
 
 # Function to initialize automatic application of cursor rules
 setup_git_hooks() {
-  local hooks_dir=".git/hooks"
+  local target_dir="${1:-.}"
+  local hooks_dir="$target_dir/.git/hooks"
   
-  if [[ ! -d ".git" ]]; then
-    echo "❌ Not a git repository. Initialize with 'git init' first."
+  if [[ ! -d "$target_dir/.git" ]]; then
+    echo "❌ Not a git repository at $target_dir. Initialize with 'git init' first."
     return 1
   fi
   
@@ -351,12 +352,121 @@ setup_git_hooks() {
   cat > "$hooks_dir/post-checkout" << 'EOL'
 #!/bin/zsh
 # Apply cursor rules after checkout
-~/.cursor-global-config/cursor-rules-setup.zsh apply
+echo "🔄 Applying cursor rules after checkout..."
+~/.cursor-global-config/cursor-rules-setup.zsh apply "$(git rev-parse --show-toplevel)"
+exit 0
 EOL
   
-  chmod +x "$hooks_dir/post-checkout"
+  # Create post-merge hook to update rules after pulling changes
+  cat > "$hooks_dir/post-merge" << 'EOL'
+#!/bin/zsh
+# Apply cursor rules after merge (e.g., git pull)
+echo "🔄 Applying cursor rules after merge/pull..."
+~/.cursor-global-config/cursor-rules-setup.zsh apply "$(git rev-parse --show-toplevel)"
+exit 0
+EOL
+
+  # Create post-rewrite hook for handling rebases and amends
+  cat > "$hooks_dir/post-rewrite" << 'EOL'
+#!/bin/zsh
+# Apply cursor rules after rebase or amend
+echo "🔄 Applying cursor rules after rebase/amend..."
+~/.cursor-global-config/cursor-rules-setup.zsh apply "$(git rev-parse --show-toplevel)"
+exit 0
+EOL
+
+  # Create pre-commit hook to enforce conventional commits
+  cat > "$hooks_dir/pre-commit" << 'EOL'
+#!/bin/zsh
+# Enforce conventional commits format
+
+# Skip if in the middle of a merge, rebase, etc.
+if [[ -f "$(git rev-parse --git-dir)/MERGE_HEAD" ]] || \
+   [[ -f "$(git rev-parse --git-dir)/REBASE_HEAD" ]] || \
+   [[ -f "$(git rev-parse --git-dir)/CHERRY_PICK_HEAD" ]]; then
+  exit 0
+fi
+
+# Get the commit message from the template if it exists
+commit_msg_file="$(git rev-parse --git-dir)/COMMIT_EDITMSG"
+if [[ ! -f "$commit_msg_file" ]]; then
+  # No commit message file yet, this is fine
+  exit 0
+fi
+
+# Read the commit message
+commit_msg=$(cat "$commit_msg_file")
+
+# Skip if it's a merge commit
+if [[ "$commit_msg" =~ ^Merge\ branch ]]; then
+  exit 0
+fi
+
+# Check if the commit message follows conventional format
+if ! [[ "$commit_msg" =~ ^(feat|fix|docs|style|refactor|perf|test|chore|build|ci|revert)(\([a-z0-9-]+\))?\:\ .{1,100} ]]; then
+  echo "❌ Commit message does not follow conventional format!"
+  echo "Example: feat(auth): add user authentication"
+  echo "Valid types: feat, fix, docs, style, refactor, perf, test, chore, build, ci, revert"
+  echo ""
+  echo "Your commit message was:"
+  echo "$commit_msg"
+  echo ""
+  echo "To bypass this check, use git commit with --no-verify"
+  exit 1
+fi
+
+exit 0
+EOL
   
-  echo "✅ Git hooks installed. Cursor rules will be applied automatically after checkout."
+  # Make all hooks executable
+  chmod +x "$hooks_dir/post-checkout" "$hooks_dir/post-merge" "$hooks_dir/post-rewrite" "$hooks_dir/pre-commit"
+  
+  echo "✅ Git hooks installed in $target_dir:"
+  echo "  - post-checkout: Applies cursor rules after checkout"
+  echo "  - post-merge: Applies cursor rules after merge/pull"
+  echo "  - post-rewrite: Applies cursor rules after rebase/amend"
+  echo "  - pre-commit: Enforces conventional commit format"
+  echo ""
+  echo "Cursor rules will be applied automatically when needed."
+}
+
+# Function to install hooks for all git repositories in a directory
+setup_git_hooks_batch() {
+  local base_dir="${1:-.}"
+  local repos=()
+  
+  echo "🔍 Searching for git repositories in $base_dir..."
+  
+  # Find all git repositories in the specified directory
+  while IFS= read -r repo_path; do
+    # Extract the parent directory of the .git folder
+    repo_dir=$(dirname "$repo_path")
+    repos+=("$repo_dir")
+  done < <(find "$base_dir" -name ".git" -type d -not -path "*/node_modules/*" -not -path "*/\.*/*" 2>/dev/null)
+  
+  if [[ ${#repos[@]} -eq 0 ]]; then
+    echo "❌ No git repositories found in $base_dir"
+    return 1
+  fi
+  
+  echo "🚀 Found ${#repos[@]} git repositories. Installing hooks..."
+  
+  local success_count=0
+  local fail_count=0
+  
+  for repo in "${repos[@]}"; do
+    echo "📁 Installing hooks in: $repo"
+    if setup_git_hooks "$repo"; then
+      ((success_count++))
+    else
+      ((fail_count++))
+    fi
+  done
+  
+  echo "✅ Installed hooks in $success_count repository/repositories"
+  if [[ $fail_count -gt 0 ]]; then
+    echo "❌ Failed to install hooks in $fail_count repository/repositories"
+  fi
 }
 
 # Main execution
@@ -377,7 +487,12 @@ case "$1" in
     init_cursor_rules "$@"
     ;;
   hooks)
-    setup_git_hooks
+    shift
+    setup_git_hooks "$@"
+    ;;
+  hooks-batch)
+    shift
+    setup_git_hooks_batch "$@"
     ;;
   *)
     echo "Cursor Rules Manager"
@@ -386,6 +501,7 @@ case "$1" in
     echo "  $0 init [dir]           - Initialize project with global + project-specific rules"
     echo "  $0 apply [dir1 dir2...] - Apply rules to specified directories (or current dir)"
     echo "  $0 link [dir]           - Create symlink to rules instead of copying"
-    echo "  $0 hooks                - Setup git hooks for auto-applying rules"
+    echo "  $0 hooks [dir]          - Setup git hooks for auto-applying rules in a repository"
+    echo "  $0 hooks-batch [dir]    - Setup git hooks for all repositories in a directory"
     ;;
 esac
