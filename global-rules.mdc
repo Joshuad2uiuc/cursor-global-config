@@ -1,0 +1,855 @@
+# Conventional Commits Rule
+
+<rule>
+name: conventional_commits
+description: Guide commit messages to follow the conventional commits format
+filters:
+  - type: event
+    pattern: "commit_message_input"
+  - type: intent
+    pattern: "commit_changes"
+
+actions:
+  - type: suggest
+    message: |
+      Format your commit message using conventional commits:
+
+      <type>(<scope>): <description>
+
+      Types:
+      - feat: New feature
+      - fix: Bug fix
+      - docs: Documentation changes
+      - style: Code style/formatting
+      - refactor: Code restructuring
+      - perf: Performance improvements
+      - test: Adding/fixing tests
+      - chore: Maintenance tasks
+
+      Examples:
+      - feat(auth): add user authentication system
+      - fix(api): correct response status code
+      - docs(readme): update installation instructions
+
+examples:
+  - input: "Added login function"
+    output: "feat(auth): add login function"
+  - input: "Fixed bug in API response"
+    output: "fix(api): correct response status code"
+
+metadata:
+  priority: high
+  version: 1.0
+</rule>
+
+# Code Documentation Rule
+
+<rule>
+name: code_documentation
+description: Ensure proper documentation for functions, classes, and modules
+filters:
+  - type: file_extension
+    pattern: "\.(js|ts|py|java|c|cpp|go|rb)$"
+  - type: content
+    pattern: "(function|class|def|interface)"
+
+actions:
+  - type: suggest
+    message: |
+      Remember to document your code with:
+
+      1. Function/class purpose description
+      2. Parameters and return values
+      3. Usage examples for complex functions
+      4. Edge cases and error handling
+
+      Use the standard format for your language:
+      - JSDoc for JavaScript/TypeScript
+      - Docstrings for Python
+      - Javadoc for Java
+      - Godoc for Go
+
+  - type: reject
+    conditions:
+      - pattern: "(function|class|def) [A-Za-z0-9_]+\\([^\\)]*\\)\\s*\\{(?![\\s\\S]*\\/\\*\\*|[\\s\\S]*\"\"\"|[\\s\\S]*\\/\\/)"
+        message: "Missing documentation for this function/class"
+
+examples:
+  - input: |
+      function calculateTotal(prices) {
+        return prices.reduce((sum, price) => sum + price, 0);
+      }
+    output: |
+      /**
+       * Calculates the sum of all prices
+       * @param {number[]} prices - Array of prices to sum
+       * @returns {number} The total sum
+       */
+      function calculateTotal(prices) {
+        return prices.reduce((sum, price) => sum + price, 0);
+      }
+
+metadata:
+  priority: medium
+  version: 1.0
+</rule>
+
+# Error Handling Rule
+
+<rule>
+name: error_handling
+description: Ensure proper error handling in code
+filters:
+  - type: file_extension
+    pattern: "\.(js|ts|py|java|c|cpp|go|rb)$"
+  - type: content
+    pattern: "(try|catch|throw|except|raise|error|throw new Error)"
+
+actions:
+  - type: suggest
+    message: |
+      Best practices for error handling:
+
+      1. Use specific error types/classes
+      2. Include informative error messages
+      3. Log errors with contextual information
+      4. Handle errors at appropriate levels
+      5. Avoid empty catch blocks
+      6. Consider recovery strategies
+
+      Remember to document error scenarios in function/method documentation.
+
+  - type: reject
+    conditions:
+      - pattern: "catch\\s*\\([^\\)]*\\)\\s*\\{\\s*\\}"
+        message: "Empty catch block - handle or at least log the error"
+      - pattern: "catch\\s*\\([^\\)]*\\)\\s*\\{\\s*console\\.log"
+        message: "Consider using proper logging instead of console.log for errors"
+
+examples:
+  - input: |
+      try {
+        riskyOperation();
+      } catch (err) {
+        // Silent fail
+      }
+    output: |
+      try {
+        riskyOperation();
+      } catch (err) {
+        logger.error('Failed to perform risky operation', { error: err.message, stack: err.stack });
+        // Consider recovery logic or proper propagation
+      }
+
+metadata:
+  priority: high
+  version: 1.0
+</rule>
+
+# Testing Reminder Rule
+
+<rule>
+name: testing_reminder
+description: Remind to write tests for new code
+filters:
+  - type: event
+    pattern: "file_create"
+  - type: file_extension
+    pattern: "\.(js|ts|py|java|c|cpp|go|rb)$"
+  - type: content
+    pattern: "(function|class|def|interface)"
+
+actions:
+  - type: suggest
+    message: |
+      Remember to write tests for this new code:
+
+      1. Unit tests for individual functions/methods
+      2. Integration tests for component interactions
+      3. Edge cases and error scenarios
+      4. Consider test-driven development (TDD)
+
+      Testing frameworks by language:
+      - JavaScript/TypeScript: Jest, Mocha, Jasmine
+      - Python: pytest, unittest
+      - Java: JUnit, TestNG
+      - Go: Go testing package
+      - Ruby: RSpec, Minitest
+
+examples:
+  - input: "Created new authentication service"
+    output: "Don't forget to write tests for the authentication service, including successful login, failed login attempts, and edge cases."
+
+metadata:
+  priority: medium
+  version: 1.0
+</rule>
+
+# Code Quality Standards Rule
+
+<rule>
+name: code_quality_standards
+description: Enforce code quality standards and best practices
+filters:
+  - type: file_extension
+    pattern: "\.(js|ts|py|java|c|cpp|go|rb)$"
+  - type: event
+    pattern: "file_save"
+
+actions:
+  - type: suggest
+    message: |
+      Code quality checklist:
+
+      1. Follow consistent naming conventions
+      2. Keep functions small and focused (single responsibility)
+      3. Limit function arguments (≤3 when possible)
+      4. Avoid deep nesting (≤3 levels)
+      5. Add comments for complex logic
+      6. Remove commented-out code
+      7. Avoid magic numbers (use named constants)
+      8. Check for potential null/undefined values
+      9. Consider performance implications
+      10. Follow language-specific style guides
+
+  - type: reject
+    conditions:
+      - pattern: "function [A-Za-z0-9_]+\\([^\\)]{100,}\\)"
+        message: "Too many function parameters - consider refactoring or using an options object"
+      - pattern: "\\{[^\\{\\}]*\\{[^\\{\\}]*\\{[^\\{\\}]*\\{[^\\{\\}]*\\{[^\\{\\}]*\\}[^\\{\\}]*\\}[^\\{\\}]*\\}[^\\{\\}]*\\}[^\\{\\}]*\\}"
+        message: "Too many nested blocks - consider refactoring for readability"
+
+examples:
+  - input: |
+      function processData(data) {
+        if (data) {
+          if (data.users) {
+            if (data.users.length > 0) {
+              if (data.users[0].active) {
+                // Process active users
+              }
+            }
+          }
+        }
+      }
+    output: |
+      function processData(data) {
+        if (!data?.users?.length) return;
+
+        const activeUsers = data.users.filter(user => user.active);
+        if (activeUsers.length) {
+          // Process active users
+        }
+      }
+
+metadata:
+  priority: high
+  version: 1.0
+</rule>
+
+# GitHub Repository Best Practices
+
+<rule>
+name: github_repo_standards
+description: Enforce GitHub repository best practices
+filters:
+  - type: file_name
+    pattern: "^(README\\.md|CONTRIBUTING\\.md|LICENSE|CODE_OF_CONDUCT\\.md)$"
+  - type: directory
+    pattern: "^\\."
+  - type: event
+    pattern: "repository_create"
+
+actions:
+  - type: suggest
+    message: |
+      GitHub repository essentials:
+
+      1. README.md should include:
+         - Project description and purpose
+         - Installation instructions
+         - Usage examples
+         - Contributing guidelines link
+
+      2. Essential repository files:
+         - CONTRIBUTING.md
+         - LICENSE
+         - CODE_OF_CONDUCT.md
+
+      3. Consider adding:
+         - .github/ISSUE_TEMPLATE/
+         - .github/PULL_REQUEST_TEMPLATE.md
+         - .github/workflows/ (for GitHub Actions)
+
+examples:
+  - input: "Creating a new repository"
+    output: "Don't forget to add a README.md with installation and usage instructions, and consider setting up issue/PR templates."
+
+metadata:
+  priority: medium
+  version: 1.0
+</rule>
+
+# Git Ignore Rule
+
+<rule>
+name: gitignore_standards
+description: Ensure proper .gitignore configuration
+filters:
+  - type: file_name
+    pattern: "^\\.gitignore$"
+  - type: event
+    pattern: "repository_create"
+
+actions:
+  - type: suggest
+    message: |
+      Remember to include appropriate entries in .gitignore:
+
+      1. Language-specific build artifacts and dependencies
+         - node_modules/, venv/, target/, etc.
+      2. Editor and IDE files
+         - .vscode/, .idea/, *.swp, etc.
+      3. Operating system files
+         - .DS_Store, Thumbs.db, etc.
+      4. Build outputs and logs
+         - dist/, build/, logs/, *.log
+      5. Sensitive information
+         - .env, credentials.json, etc.
+
+      Consider using gitignore.io to generate a comprehensive .gitignore for your tech stack.
+
+examples:
+  - input: "Setting up a new Node.js project"
+    output: |
+      Make sure your .gitignore includes:
+
+      # Dependencies
+      node_modules/
+
+      # Build outputs
+      dist/
+      build/
+
+      # Environment variables
+      .env
+      *.env.local
+
+      # Logs
+      logs/
+      *.log
+
+      # Editor settings
+      .vscode/
+      .idea/
+
+      # OS files
+      .DS_Store
+      Thumbs.db
+
+metadata:
+  priority: medium
+  version: 1.0
+</rule>
+
+# Dockerfile Best Practices Rule
+
+<rule>
+name: dockerfile_best_practices
+description: Enforce best practices for Dockerfile creation and maintenance
+filters:
+  - type: file_name
+    pattern: "^Dockerfile$|^Dockerfile\\.[a-zA-Z0-9_-]+$"
+  - type: content
+    pattern: "FROM|RUN|COPY|ADD|ENTRYPOINT|CMD"
+
+actions:
+  - type: suggest
+    message: |
+      Dockerfile best practices:
+
+      1. Use specific base image tags (avoid `latest`)
+      2. Group related commands with `&&` to reduce layers
+      3. Use multi-stage builds to reduce final image size
+      4. Remove unnecessary files after package installation
+      5. Use .dockerignore file to exclude irrelevant files
+      6. Place frequently changing instructions later in Dockerfile
+      7. Use COPY instead of ADD unless extraction is needed
+      8. Set proper USER to avoid running as root
+      9. Use HEALTHCHECK to verify container health
+      10. Include proper LABELS for metadata
+
+      Example multi-stage build:
+      ```dockerfile
+      # Build stage
+      FROM node:16-alpine AS build
+      WORKDIR /app
+      COPY package*.json ./
+      RUN npm ci
+      COPY . .
+      RUN npm run build
+
+      # Production stage
+      FROM node:16-alpine
+      WORKDIR /app
+      COPY --from=build /app/dist ./dist
+      COPY --from=build /app/package*.json ./
+      RUN npm ci --only=production
+      USER node
+      CMD ["node", "dist/index.js"]
+      ```
+
+  - type: reject
+    conditions:
+      - pattern: "FROM .*:latest"
+        message: "Avoid using 'latest' tag - specify a version for reproducible builds"
+      - pattern: "ADD (?!https?://|tar|zip)"
+        message: "Use COPY instead of ADD unless retrieving remote files or extracting archives"
+      - pattern: "RUN apt-get (update|install)(?!.*apt-get clean)"
+        message: "Clean apt cache after installation to reduce image size"
+      - pattern: "RUN npm install"
+        message: "Use 'npm ci' for reproducible builds in Docker"
+
+examples:
+  - input: |
+      FROM ubuntu:latest
+      RUN apt-get update
+      RUN apt-get install -y nginx
+      ADD app.tar.gz /app
+      CMD ["nginx", "-g", "daemon off;"]
+    output: |
+      FROM ubuntu:22.04
+      RUN apt-get update && \
+          apt-get install -y nginx && \
+          apt-get clean && \
+          rm -rf /var/lib/apt/lists/*
+      ADD app.tar.gz /app
+      EXPOSE 80
+      USER nginx
+      CMD ["nginx", "-g", "daemon off;"]
+
+metadata:
+  priority: high
+  version: 1.0
+</rule>
+
+# Docker Security Rule
+
+<rule>
+name: docker_security_practices
+description: Enforce security best practices for Docker containers
+filters:
+  - type: file_name
+    pattern: "^Dockerfile$|^Dockerfile\\.[a-zA-Z0-9_-]+$|docker-compose\\.ya?ml$"
+  - type: content
+    pattern: "FROM|RUN|USER|COPY|VOLUME"
+
+actions:
+  - type: suggest
+    message: |
+      Docker security best practices:
+
+      1. Use official or verified images as base
+      2. Regularly scan images for vulnerabilities (using tools like Trivy, Clair)
+      3. Use non-root users when possible
+      4. Use specific versions of base images
+      5. Remove unnecessary tools and packages
+      6. Don't store secrets in Docker images
+      7. Use read-only file systems where possible
+      8. Use Docker Content Trust for signed images
+      9. Limit container capabilities and resources
+      10. Keep base images updated for security patches
+
+      Example of proper security configuration:
+      ```dockerfile
+      FROM alpine:3.16
+
+      # Install dependencies
+      RUN apk add --no-cache application-package
+
+      # Create non-root user and group
+      RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+
+      # Set proper permissions
+      COPY --chown=appuser:appgroup . /app
+
+      # Use non-root user
+      USER appuser
+
+      # Make filesystem read-only where possible
+      VOLUME ["/app/data"]
+
+      # Limit capabilities
+      # (implement at runtime with docker run --cap-drop=ALL --cap-add=specific_capability)
+
+      CMD ["./app/start.sh"]
+      ```
+
+  - type: reject
+    conditions:
+      - pattern: "FROM (?!alpine|debian|ubuntu|centos|fedora)[^:]+(?!.*slim)"
+        message: "Consider using a minimal base image like alpine or slim variants"
+      - pattern: "(?<!USER) (root|0)"
+        message: "Avoid running containers as root - create and use non-root users"
+      - pattern: "(ENV|ARG) .*PASSWORD|.*SECRET|.*KEY"
+        message: "Don't store secrets in Docker images - use environment variables at runtime or secrets management"
+
+examples:
+  - input: |
+      FROM alpine:latest
+      RUN apk add --no-cache python3
+      ENV DB_PASSWORD=secretpassword
+      COPY ./app /app
+      CMD ["python3", "/app/main.py"]
+    output: |
+      FROM alpine:3.16
+      RUN apk add --no-cache python3
+      # Create non-root user
+      RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+      # Use ENV at runtime, not build time
+      # ENV DB_PASSWORD=secretpassword
+      COPY --chown=appuser:appgroup ./app /app
+      USER appuser
+      CMD ["python3", "/app/main.py"]
+
+metadata:
+  priority: high
+  version: 1.0
+</rule>
+
+# Docker Compose Best Practices Rule
+
+<rule>
+name: docker_compose_best_practices
+description: Enforce best practices for Docker Compose files
+filters:
+  - type: file_name
+    pattern: "docker-compose\\.ya?ml$"
+  - type: content
+    pattern: "version:|services:"
+
+actions:
+  - type: suggest
+    message: |
+      Docker Compose best practices:
+
+      1. Use version 3+ of the compose specification
+      2. Define service dependencies properly
+      3. Use environment files for configuration
+      4. Name volumes explicitly for persistence
+      5. Configure healthchecks for services
+      6. Set resource limits for services
+      7. Use networks for isolation between service groups
+      8. Add labels for better organization
+      9. Use profiles for different deployment scenarios
+      10. Implement proper restart policies
+
+      Example of good Docker Compose structure:
+      ```yaml
+      version: '3.9'
+
+      services:
+        webapp:
+          image: webapp:1.0
+          build:
+            context: ./webapp
+            dockerfile: Dockerfile
+          depends_on:
+            db:
+              condition: service_healthy
+          ports:
+            - "8080:8080"
+          environment:
+            - NODE_ENV=production
+          env_file:
+            - ./.env
+          deploy:
+            resources:
+              limits:
+                cpus: '0.5'
+                memory: 512M
+          restart: unless-stopped
+          healthcheck:
+            test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+            interval: 30s
+            timeout: 10s
+            retries: 3
+          networks:
+            - frontend
+            - backend
+
+        db:
+          image: postgres:14-alpine
+          volumes:
+            - db_data:/var/lib/postgresql/data
+          env_file:
+            - ./.env
+          networks:
+            - backend
+          healthcheck:
+            test: ["CMD", "pg_isready", "-U", "postgres"]
+            interval: 10s
+            timeout: 5s
+            retries: 5
+
+      volumes:
+        db_data:
+          name: my_project_db_data
+
+      networks:
+        frontend:
+        backend:
+      ```
+
+  - type: reject
+    conditions:
+      - pattern: "version: ['\"]?2['\"]?"
+        message: "Use Docker Compose version 3+ for better compatibility with Docker Swarm and Kubernetes"
+      - pattern: "build: \\."
+        message: "Specify build context and Dockerfile explicitly for better clarity"
+
+examples:
+  - input: |
+      version: '2'
+      services:
+        web:
+          build: .
+          ports:
+            - "5000:5000"
+        redis:
+          image: redis
+    output: |
+      version: '3.9'
+      services:
+        web:
+          build:
+            context: .
+            dockerfile: Dockerfile
+          ports:
+            - "5000:5000"
+          depends_on:
+            redis:
+              condition: service_started
+          restart: unless-stopped
+          healthcheck:
+            test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+            interval: 30s
+            timeout: 10s
+            retries: 3
+        redis:
+          image: redis:7-alpine
+          volumes:
+            - redis_data:/data
+          healthcheck:
+            test: ["CMD", "redis-cli", "ping"]
+            interval: 10s
+            timeout: 5s
+            retries: 5
+
+      volumes:
+        redis_data:
+
+metadata:
+  priority: medium
+  version: 1.0
+</rule>
+
+# Docker Image Optimization Rule
+
+<rule>
+name: docker_image_optimization
+description: Guide optimization of Docker images for production use
+filters:
+  - type: file_name
+    pattern: "^Dockerfile$|^Dockerfile\\.[a-zA-Z0-9_-]+$"
+  - type: content
+    pattern: "FROM|RUN|COPY|ADD"
+
+actions:
+  - type: suggest
+    message: |
+      Docker image optimization best practices:
+
+      1. Use multi-stage builds to reduce final image size
+      2. Select appropriate base images (Alpine or slim variants)
+      3. Minimize layer count by combining related commands
+      4. Clean up after package installations and builds
+      5. Use .dockerignore to exclude unnecessary files
+      6. Order layers from least to most frequently changing
+      7. Use specific versions for reproducibility
+      8. Only install necessary packages and dependencies
+      9. Consider distroless images for production
+      10. Remove build tools in final image
+
+      Example of optimized Dockerfile:
+      ```dockerfile
+      # Build stage
+      FROM node:16-alpine AS build
+      WORKDIR /app
+
+      # Install dependencies first (better layer caching)
+      COPY package*.json ./
+      RUN npm ci
+
+      # Then copy source code
+      COPY . .
+
+      # Build the application
+      RUN npm run build
+
+      # Production stage
+      FROM node:16-alpine
+      WORKDIR /app
+
+      # Copy only what's needed from build stage
+      COPY --from=build /app/dist ./dist
+      COPY --from=build /app/package*.json ./
+
+      # Install only production dependencies
+      RUN npm ci --only=production && \
+          npm cache clean --force
+
+      # Use non-root user
+      USER node
+
+      # Start the application
+      CMD ["node", "dist/index.js"]
+      ```
+
+  - type: reject
+    conditions:
+      - pattern: "RUN (npm|pip|apt-get|apk) (?!.*--no-cache|.*clean)"
+        message: "Clean cache after package installation to reduce image size"
+      - pattern: "RUN (npm|yarn) install (?!.*--production|.*--only=production)"
+        message: "Use production flag to avoid installing dev dependencies in final image"
+
+examples:
+  - input: |
+      FROM node:latest
+      WORKDIR /app
+      COPY . .
+      RUN npm install
+      CMD ["npm", "start"]
+    output: |
+      FROM node:16-alpine AS build
+      WORKDIR /app
+      COPY package*.json ./
+      RUN npm ci
+      COPY . .
+      RUN npm run build
+
+      FROM node:16-alpine
+      WORKDIR /app
+      COPY --from=build /app/dist ./dist
+      COPY --from=build /app/package*.json ./
+      RUN npm ci --only=production && npm cache clean --force
+      USER node
+      CMD ["node", "dist/index.js"]
+
+metadata:
+  priority: medium
+  version: 1.0
+</rule>
+
+# Docker Networking and Volumes Rule
+
+<rule>
+name: docker_networking_volumes
+description: Guide proper use of Docker networking and volume management
+filters:
+  - type: file_name
+    pattern: "docker-compose\\.ya?ml$|^Dockerfile$"
+  - type: content
+    pattern: "volumes:|networks:|VOLUME|ports:"
+
+actions:
+  - type: suggest
+    message: |
+      Docker networking and volumes best practices:
+
+      1. Name volumes explicitly rather than using anonymous volumes
+      2. Use bind mounts for development, named volumes for production
+      3. Create separate networks for isolation between service groups
+      4. Expose only necessary ports
+      5. Use internal networks for service-to-service communication
+      6. Implement proper network aliases
+      7. Consider read-only volumes when possible
+      8. Use volume drivers for specific requirements
+      9. Set up proper network policies
+      10. Backup important volumes
+
+      Example of good volume and network configuration:
+      ```yaml
+      # Docker Compose example
+      services:
+        webapp:
+          # ... other config
+          volumes:
+            - ./src:/app/src:ro  # Read-only bind mount for code
+            - app_node_modules:/app/node_modules  # Named volume for dependencies
+          ports:
+            - "8080:8080"  # Only expose what's necessary
+          networks:
+            frontend:
+              aliases:
+                - webapp.local
+            backend: {}
+
+        db:
+          # ... other config
+          volumes:
+            - db_data:/var/lib/postgresql/data
+          networks:
+            backend: {}
+          # No ports exposed to host - only accessible via internal network
+
+      volumes:
+        app_node_modules:
+        db_data:
+          driver: local
+          driver_opts:
+            type: 'none'
+            o: 'bind'
+            device: '/path/on/host/db-data'
+
+      networks:
+        frontend:
+        backend:
+          internal: true  # Not exposed to outside world
+      ```
+
+  - type: reject
+    conditions:
+      - pattern: "volumes:\\s+- /[^:]+:/"
+        message: "Use named volumes instead of anonymous volumes for better persistence and management"
+      - pattern: "ports:\\s+- \"[^:]+:22\""
+        message: "Exposing SSH port (22) is generally not recommended for containers"
+
+examples:
+  - input: |
+      services:
+        app:
+          build: .
+          volumes:
+            - /app/data
+          ports:
+            - "80:80"
+            - "22:22"
+    output: |
+      services:
+        app:
+          build: .
+          volumes:
+            - app_data:/app/data
+          ports:
+            - "80:80"
+          # Removed unnecessary SSH port
+
+      volumes:
+        app_data:
+          name: my_project_app_data
+
+metadata:
+  priority: medium
+  version: 1.0
+</rule>
