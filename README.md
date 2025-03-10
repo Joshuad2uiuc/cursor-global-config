@@ -1,0 +1,1 @@
+# cursor-global-config
